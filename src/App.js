@@ -5,15 +5,16 @@ const states = {
   IDLE: "IDLE",
   HOVERING: "HOVERING",
   UPLOADING: "UPLOADING",
-  SUCCESS: "SUCCESS",
+  SUCCESS: "SUCCESS"
 };
 
 const events = {
   MOUSEENTER: "MOUSEENTER",
   MOUSELEAVE: "MOUSELEAVE",
   CLICK: "CLICK",
+  UPLOADED: "UPLOADED",
   SUCCESS: "SUCCESS",
-  RESET: "RESET",
+  RESET: "RESET"
 };
 
 const uploaderMachine = {
@@ -22,25 +23,25 @@ const uploaderMachine = {
     [states.IDLE]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSEENTER]: states.HOVERING,
-      },
+        [events.MOUSEENTER]: states.HOVERING
+      }
     },
     [states.HOVERING]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSELEAVE]: states.IDLE,
-      },
+        [events.MOUSELEAVE]: states.IDLE
+      }
     },
     [states.UPLOADING]: {
-      on: { [events.UPLOADED]: states.SUCCESS },
+      on: { [events.UPLOADED]: states.SUCCESS }
     },
     [states.SUCCESS]: {
       on: {
         [events.CLICK]: states.IDLE,
-        [events.RESET]: states.IDLE,
-      },
-    },
-  },
+        [events.RESET]: states.IDLE
+      }
+    }
+  }
 };
 
 function uploaderReducer(state, event) {
@@ -139,8 +140,7 @@ function CloudIcon({ state }) {
     strokeMiterlimit: "2",
     fill: "none",
     stroke: "#000",
-    strokeWidth: "2",
-    strokeMiterlimit: "1.5",
+    strokeWidth: "2"
   };
 
   return (
