@@ -3,58 +3,19 @@ import "./App.scss";
 import { createMachine, assign } from "xstate";
 import { useMachine } from "@xstate/react";
 
-interface UploaderContext {
-  count: number;
-}
+// interface FileDropContext {
+//   count: number;
+// }
 
-const UploaderMachine = createMachine<UploaderContext>({
-  id: "uploader",
-  initial: "idle",
-  context: {
-    progress: 0
-  },
-  states: {
-    idle: {
-      on: { HOVER: "hovering", DRAG_OVER: "dragging" }
-    },
-    hovering: {
-      on: { CLICK: "processing" }
-    },
-    dragging: {
-      on: {
-        DRAG_LEAVE: "processing"
-      }
-    },
-    processing: {
-      entry: "resetProgress",
-      exit: "resetFileInput",
-      invoke: { src: "processFile" },
-      on: {
-        PROGRESS: { actions: "updateProgress" },
-        ERROR: { target: "error", actions: "storeError" },
-        DONE: { target: "completed", actions: "storeFileData" }
-      }
-    },
-    upload: {
-      entry: "sendOff"
-    },
-    error: {
-      entry: "showError",
-      on: { DRAG_OVER: "dragging" }
-    },
-    completed: {
-      entry: "renderImageFile",
-      after: { 5000: "idle" }
-    }
-  }
-});
-
-// This sucks and I need to fix to XState!!!!
+// const FileDropMachine = createMachine<FileDropContext>({
+// });
 
 const states = {
   IDLE: "IDLE",
   HOVERING: "HOVERING",
+  DRAGGING: "DRAGGING",
   UPLOADING: "UPLOADING",
+  ERROR: "ERROR",
   SUCCESS: "SUCCESS"
 };
 
@@ -62,12 +23,23 @@ const events = {
   MOUSEENTER: "MOUSEENTER",
   MOUSELEAVE: "MOUSELEAVE",
   CLICK: "CLICK",
+  DRAGENTER: "DRAGENTER",
+  DRAGLEAVE: "",
+  DROP: "DROP",
+  PROCESSING: "PROCESSING",
+  ERROR: "ERROR",
   SUCCESS: "SUCCESS",
   RESET: "RESET"
 };
 
-const uploaderMachine = {
+// This sucks and I need to fix to XState!!!!
+
+const fileDropMachine = {
+  id: "filedrop",
   initial: states.IDLE,
+  context: {
+    progress: 0
+  },
   states: {
     [states.IDLE]: {
       on: {
@@ -81,8 +53,17 @@ const uploaderMachine = {
         [events.MOUSELEAVE]: states.IDLE
       }
     },
+    [states.DRAGGING]: {
+      on: {
+        [events.DRAGLEAVE]: [{ target: states.ERROR, cond: "hasError" }]
+      }
+    },
     [states.UPLOADING]: {
-      on: { [events.UPLOADED]: states.SUCCESS }
+      on: { [events.SUCCESS]: states.SUCCESS }
+    },
+    [states.ERROR]: {
+      entry: "showError",
+      on: { [events.DRAGLEAVE]: states.DRAGGING }
     },
     [states.SUCCESS]: {
       on: {
@@ -93,10 +74,10 @@ const uploaderMachine = {
   }
 };
 
-function uploaderReducer(state, event) {
+function fileDropReducer(state, event) {
   return (
-    (uploaderMachine.states[state] &&
-      uploaderMachine.states[state].on[event]) ||
+    (fileDropMachine.states[state] &&
+      fileDropMachine.states[state].on[event]) ||
     state
   );
 }
@@ -174,12 +155,12 @@ function Progress(props) {
 
 /* ---------------------------------- */
 
-const TIMEOUT = 2000;
+const TIMEOUT = 1000;
 
 function FileUploader() {
   const [state, dispatch] = useReducer(
-    uploaderReducer,
-    uploaderMachine.initial
+    fileDropReducer,
+    fileDropMachine.initial
   );
 
   useEffect(() => {
@@ -193,7 +174,7 @@ function FileUploader() {
     }
   }, [state]);
 
-  const showProgress = [states.UPLOADING, states.SUCCESS].includes(state);
+  const showProgress = [states.UPLOADING].includes(state);
 
   return (
     <div

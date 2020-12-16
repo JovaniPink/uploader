@@ -182,6 +182,10 @@ body {
 
 [data-state="UPLOADING"] {
   cursor: wait;
+  
+  &:before {
+    transform: scale(1.1);
+  }
 }
 
 [data-state="SUCCESS"] {
