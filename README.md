@@ -44,3 +44,25 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## My notes
+
+[HTML Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)
+
+[FileReader Docs](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
+
+[Axios](https://github.com/axios/axios)
+
+Our drag-and-drop image component will do these things:
+
+- Listen for dragover and drop OR mouseover and click
+- Detect when a file is dropped on the drop zone OR if a user clicks in the drop zone.
+- Enter a processing phase to:
+- Validate dropped images with JavaScript function
+- If valid:
+- Display image name and file type as a progress bar and label
+- Upload images to server.
+- If not valid:
+- Error on images with unsupported file types
+
+[Statechart](https://xstate.js.org/viz/?gist=82e6ab696d95bc135130f0395cdfc86d)

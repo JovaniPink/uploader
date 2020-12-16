@@ -1,11 +1,61 @@
 import React, { useEffect, useRef, useState, useReducer } from "react";
-import "./App.css";
+import "./App.scss";
+import { createMachine, assign } from "xstate";
+import { useMachine } from "@xstate/react";
+
+interface UploaderContext {
+  count: number;
+}
+
+const UploaderMachine = createMachine<UploaderContext>({
+  id: "uploader",
+  initial: "idle",
+  context: {
+    progress: 0
+  },
+  states: {
+    idle: {
+      on: { HOVER: "hovering", DRAG_OVER: "dragging" }
+    },
+    hovering: {
+      on: { CLICK: "processing" }
+    },
+    dragging: {
+      on: {
+        DRAG_LEAVE: "processing"
+      }
+    },
+    processing: {
+      entry: "resetProgress",
+      exit: "resetFileInput",
+      invoke: { src: "processFile" },
+      on: {
+        PROGRESS: { actions: "updateProgress" },
+        ERROR: { target: "error", actions: "storeError" },
+        DONE: { target: "completed", actions: "storeFileData" }
+      }
+    },
+    upload: {
+      entry: "sendOff"
+    },
+    error: {
+      entry: "showError",
+      on: { DRAG_OVER: "dragging" }
+    },
+    completed: {
+      entry: "renderImageFile",
+      after: { 5000: "idle" }
+    }
+  }
+});
+
+// This sucks and I need to fix to XState!!!!
 
 const states = {
   IDLE: "IDLE",
   HOVERING: "HOVERING",
   UPLOADING: "UPLOADING",
-  SUCCESS: "SUCCESS",
+  SUCCESS: "SUCCESS"
 };
 
 const events = {
@@ -13,7 +63,7 @@ const events = {
   MOUSELEAVE: "MOUSELEAVE",
   CLICK: "CLICK",
   SUCCESS: "SUCCESS",
-  RESET: "RESET",
+  RESET: "RESET"
 };
 
 const uploaderMachine = {
@@ -22,25 +72,25 @@ const uploaderMachine = {
     [states.IDLE]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSEENTER]: states.HOVERING,
-      },
+        [events.MOUSEENTER]: states.HOVERING
+      }
     },
     [states.HOVERING]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSELEAVE]: states.IDLE,
-      },
+        [events.MOUSELEAVE]: states.IDLE
+      }
     },
     [states.UPLOADING]: {
-      on: { [events.UPLOADED]: states.SUCCESS },
+      on: { [events.UPLOADED]: states.SUCCESS }
     },
     [states.SUCCESS]: {
       on: {
         [events.CLICK]: states.IDLE,
-        [events.RESET]: states.IDLE,
-      },
-    },
-  },
+        [events.RESET]: states.IDLE
+      }
+    }
+  }
 };
 
 function uploaderReducer(state, event) {
@@ -69,7 +119,12 @@ function Progress(props) {
     };
   }, []);
 
-  return <progress min={0} max={100} value={value} />;
+  return (
+    <>
+      <p className="progress-label">Image.png</p>
+      <progress min={0} max={100} value={value} />
+    </>
+  );
 }
 
 const TIMEOUT = 2000;
@@ -106,6 +161,7 @@ function FileUploader() {
       <div className="message">
         <strong data-hidden={![states.IDLE, states.HOVERING].includes(state)}>
           Upload
+          {/* Drag & Drop image file here or click to select an image. */}
         </strong>
 
         <strong
@@ -139,8 +195,7 @@ function CloudIcon({ state }) {
     strokeMiterlimit: "2",
     fill: "none",
     stroke: "#000",
-    strokeWidth: "2",
-    strokeMiterlimit: "1.5",
+    strokeWidth: "2"
   };
 
   return (
