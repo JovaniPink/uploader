@@ -27,6 +27,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
 .file-uploader {
   font-size: 4vmin;
   display: grid;

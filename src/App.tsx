@@ -193,8 +193,8 @@ function FileUploader() {
         ref={fileInputRef}
         className="file-input"
         type="file"
-        multiple
         onChange={filesSelected}
+        {/*onInput={fileSize(this)}*/}
       />
 
       <div className="message">

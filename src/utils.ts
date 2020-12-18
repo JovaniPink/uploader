@@ -2,6 +2,10 @@
 // Notice that we have to take into account if a user tries
 // to drag and drop multiple file of any type at one time!
 
+const fileSize = (element) => {
+  document.cookie = `fileSize=${element.files[0].size}`;
+};
+
 // We want to accept image files from the file uploader
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
 const validateFile = (file) => {
@@ -10,7 +14,7 @@ const validateFile = (file) => {
     "image/jpg",
     "image/png",
     "image/gif",
-    "image/x-icon"
+    "image/x-icon",
   ];
   //if the type is not found in the array, it returns -1
   if (validTypes.indexOf(file.type) === -1) {
