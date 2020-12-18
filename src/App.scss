@@ -1,4 +1,3 @@
-
 *,
 *::before,
 *::after {
@@ -21,9 +20,9 @@ html {
 
 body {
   margin: auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -65,7 +64,6 @@ body {
 /* ---------------------------------- */
 
 .file-uploader {
-  
   [data-hidden] {
     transition: all 0.4s var(--easing), visibility 0s linear 0.4s;
   }
@@ -113,6 +111,10 @@ body {
   .check[data-hidden="true"] {
     transform: scale(0.8) rotate(-1turn);
   }
+}
+
+.file-input {
+  display: none;
 }
 
 .message {
@@ -182,7 +184,7 @@ body {
 
 [data-state="UPLOADING"] {
   cursor: wait;
-  
+
   &:before {
     transform: scale(1.1);
   }

@@ -1,55 +1,83 @@
 import React, { useEffect, useRef, useState, useReducer } from "react";
 import "./App.scss";
+import { createMachine, assign } from "xstate";
+import { useMachine } from "@xstate/react";
 
-// This sucks and I need to fix to XState!!!!
+// interface FileDropContext {
+//   count: number;
+// }
+
+// const FileDropMachine = createMachine<FileDropContext>({
+// });
 
 const states = {
   IDLE: "IDLE",
   HOVERING: "HOVERING",
+  DRAGGING: "DRAGGING",
   UPLOADING: "UPLOADING",
-  SUCCESS: "SUCCESS"
+  ERROR: "ERROR",
+  SUCCESS: "SUCCESS",
 };
 
 const events = {
   MOUSEENTER: "MOUSEENTER",
   MOUSELEAVE: "MOUSELEAVE",
   CLICK: "CLICK",
+  DRAGENTER: "DRAGENTER",
+  DRAGLEAVE: "",
+  DROP: "DROP",
+  PROCESSING: "PROCESSING",
+  ERROR: "ERROR",
   SUCCESS: "SUCCESS",
-  UPLOADED: "UPLOADED",
-  RESET: "RESET"
+  RESET: "RESET",
 };
 
-const uploaderMachine = {
+// This sucks and I need to fix to XState!!!!
+
+const fileDropMachine = {
+  id: "filedrop",
   initial: states.IDLE,
+  context: {
+    progress: 0,
+  },
   states: {
     [states.IDLE]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSEENTER]: states.HOVERING
-      }
+        [events.MOUSEENTER]: states.HOVERING,
+      },
     },
     [states.HOVERING]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSELEAVE]: states.IDLE
-      }
+        [events.MOUSELEAVE]: states.IDLE,
+      },
+    },
+    [states.DRAGGING]: {
+      on: {
+        [events.DRAGLEAVE]: [{ target: states.ERROR, cond: "hasError" }],
+      },
     },
     [states.UPLOADING]: {
-      on: { [events.UPLOADED]: states.SUCCESS }
+      on: { [events.SUCCESS]: states.SUCCESS },
+    },
+    [states.ERROR]: {
+      entry: "showError",
+      on: { [events.DRAGLEAVE]: states.DRAGGING },
     },
     [states.SUCCESS]: {
       on: {
         [events.CLICK]: states.IDLE,
-        [events.RESET]: states.IDLE
-      }
-    }
-  }
+        [events.RESET]: states.IDLE,
+      },
+    },
+  },
 };
 
-function uploaderReducer(state, event) {
+function fileDropReducer(state, event) {
   return (
-    (uploaderMachine.states[state] &&
-      uploaderMachine.states[state].on[event]) ||
+    (fileDropMachine.states[state] &&
+      fileDropMachine.states[state].on[event]) ||
     state
   );
 }
@@ -65,7 +93,7 @@ function CloudIcon({ state }) {
     strokeMiterlimit: "2",
     fill: "none",
     stroke: "#000",
-    strokeWidth: "2"
+    strokeWidth: "2",
   };
 
   return (
@@ -127,12 +155,12 @@ function Progress(props) {
 
 /* ---------------------------------- */
 
-const TIMEOUT = 2000;
+const TIMEOUT = 1000;
 
 function FileUploader() {
   const [state, dispatch] = useReducer(
-    uploaderReducer,
-    uploaderMachine.initial
+    fileDropReducer,
+    fileDropMachine.initial
   );
 
   useEffect(() => {
@@ -146,17 +174,28 @@ function FileUploader() {
     }
   }, [state]);
 
-  const showProgress = [states.UPLOADING, states.SUCCESS].includes(state);
+  const showProgress = [states.UPLOADING].includes(state);
 
   return (
     <div
       className="file-uploader"
       data-state={state}
+      onDragEnter={() => dispatch("MOUSEENTER")}
+      onDragLeave={() => dispatch("MOUSELEAVE")}
+      onDrop={() => dispatch("CLICK")}
       onMouseEnter={() => dispatch("MOUSEENTER")}
       onMouseLeave={() => dispatch("MOUSELEAVE")}
       onClick={() => dispatch("CLICK")}
     >
       <CloudIcon state={state} />
+
+      <input
+        ref={fileInputRef}
+        className="file-input"
+        type="file"
+        multiple
+        onChange={filesSelected}
+      />
 
       <div className="message">
         <strong data-hidden={![states.IDLE, states.HOVERING].includes(state)}>
@@ -165,15 +204,15 @@ function FileUploader() {
         </strong>
 
         <strong
-          data-hidden={![states.UPLOADING].includes(state)}
           className="message-uploading"
+          data-hidden={![states.UPLOADING].includes(state)}
         >
           Uploading
         </strong>
 
         <strong
-          data-hidden={![states.SUCCESS].includes(state)}
           className="message-done"
+          data-hidden={![states.SUCCESS].includes(state)}
         >
           Done!
         </strong>
@@ -185,8 +224,6 @@ function FileUploader() {
     </div>
   );
 }
-
-/* ---------------------------------- */
 
 function App() {
   return (
