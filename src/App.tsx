@@ -16,7 +16,7 @@ const states = {
   DRAGGING: "DRAGGING",
   UPLOADING: "UPLOADING",
   ERROR: "ERROR",
-  SUCCESS: "SUCCESS",
+  SUCCESS: "SUCCESS"
 };
 
 const events = {
@@ -29,7 +29,7 @@ const events = {
   PROCESSING: "PROCESSING",
   ERROR: "ERROR",
   SUCCESS: "SUCCESS",
-  RESET: "RESET",
+  RESET: "RESET"
 };
 
 // This sucks and I need to fix to XState!!!!
@@ -38,40 +38,40 @@ const fileDropMachine = {
   id: "filedrop",
   initial: states.IDLE,
   context: {
-    progress: 0,
+    progress: 0
   },
   states: {
     [states.IDLE]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSEENTER]: states.HOVERING,
-      },
+        [events.MOUSEENTER]: states.HOVERING
+      }
     },
     [states.HOVERING]: {
       on: {
         [events.CLICK]: states.UPLOADING,
-        [events.MOUSELEAVE]: states.IDLE,
-      },
+        [events.MOUSELEAVE]: states.IDLE
+      }
     },
     [states.DRAGGING]: {
       on: {
-        [events.DRAGLEAVE]: [{ target: states.ERROR, cond: "hasError" }],
-      },
+        [events.DRAGLEAVE]: [{ target: states.ERROR, cond: "hasError" }]
+      }
     },
     [states.UPLOADING]: {
-      on: { [events.SUCCESS]: states.SUCCESS },
+      on: { [events.SUCCESS]: states.SUCCESS }
     },
     [states.ERROR]: {
       entry: "showError",
-      on: { [events.DRAGLEAVE]: states.DRAGGING },
+      on: { [events.DRAGLEAVE]: states.DRAGGING }
     },
     [states.SUCCESS]: {
       on: {
         [events.CLICK]: states.IDLE,
-        [events.RESET]: states.IDLE,
-      },
-    },
-  },
+        [events.RESET]: states.IDLE
+      }
+    }
+  }
 };
 
 function fileDropReducer(state, event) {
@@ -93,7 +93,7 @@ function CloudIcon({ state }) {
     strokeMiterlimit: "2",
     fill: "none",
     stroke: "#000",
-    strokeWidth: "2",
+    strokeWidth: "2"
   };
 
   return (
@@ -166,7 +166,7 @@ function FileUploader() {
   useEffect(() => {
     switch (state) {
       case states.UPLOADING:
-        setTimeout(() => dispatch(events.UPLOADED), TIMEOUT);
+        setTimeout(() => dispatch(events.SUCCESS), TIMEOUT);
         break;
       case states.SUCCESS:
         setTimeout(() => dispatch(events.RESET), TIMEOUT);
@@ -189,13 +189,13 @@ function FileUploader() {
     >
       <CloudIcon state={state} />
 
-      <input
+      {/* <input
         ref={fileInputRef}
         className="file-input"
         type="file"
         multiple
         onChange={filesSelected}
-      />
+      /> */}
 
       <div className="message">
         <strong data-hidden={![states.IDLE, states.HOVERING].includes(state)}>
