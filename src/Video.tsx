@@ -1,12 +1,8 @@
-import React, { useRef, useEffect } from "react";
-
-/**
- * Just a component that I use for recording myself during video tutorials.
- */
+import * as React from "react";
 
 const Video = () => {
-  const videoRef = useRef();
-  useEffect(() => {
+  const videoRef = React.useRef();
+  React.useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })
       .then((stream) => {
